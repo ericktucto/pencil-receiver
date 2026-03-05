@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencil testing</title>
+</head>
+<body>
+    <script>
+        const pc = new RTCPeerConnection({
+          iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+        });
+
+        const channel = pc.createDataChannel("chat");
+
+        channel.onmessage = e => {
+            e = JSON.parse(e.data);
+            const name = e.name;
+            const data = e.data;
+            if (name === 'list-devices') {
+                listDevices(data);
+            }
+            if (name === 'new-coords') {
+                document.querySelector("#coords").innerText = JSON.stringify(data);
+            }
+        };
+
+        function listDevices(devices) {
+            devices = devices.sort((a, b) => {
+                return a.name.localeCompare(b.name);
+            })
+            const select = document.getElementById('device-list');
+            select.innerHTML = '';
+            for (const device of devices) {
+                const option = document.createElement('option');
+                option.value = device.path;
+                option.innerText = device.name;
+                select.appendChild(option);
+            }
+        }
+
+        async function connect() {
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+
+          const response = await fetch("http://localhost:3030/offer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sdp: pc.localDescription.sdp,
+              type: pc.localDescription.type
+            })
+          });
+
+          const answer = await response.json();
+          await pc.setRemoteDescription(answer);
+          document.querySelector("h3").innerText = "Conectado";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.querySelector("form");
+            let submitting = false
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (submitting) return
+                submitting = false;
+                const response = await fetch("http://localhost:3030/listen", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        path: form.device.value
+                    })
+                });
+                //Array.from({ length: 200 }).forEach(() => move_mouse(-1, 1));
+                submitting = false;
+            }
+        });
+        function move_mouse(x, y) {
+            const data = JSON.stringify({
+                name: 'move-mouse',
+                data: {
+                    x,
+                    y
+                }
+            })
+            channel.send(data)
+        }
+
+    </script>
+
+    <button onclick="connect()">Conectar</button>
+    <h3></h3>
+    <form action="#">
+        <select name="device" id="device-list" required></select>
+        <button type="submit">Select</button>
+    </form>
+    <div id="coords"></div>
+</body>
+</html>
