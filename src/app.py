@@ -5,13 +5,18 @@ from typing import Callable, Set
 from aiortc import RTCDataChannel, RTCPeerConnection
 from evdev import InputDevice, ecodes
 from mouse import Coords
+from webrtc.observer import Observer
 
 Listen = namedtuple("Listen", ["peer"])
 
 class App:
+    observer: Observer
     listeners: Set[Listen] = set()
     task = None
     currentCoords = Coords(0, 0)
+
+    def add_peer(self, peer: RTCPeerConnection):
+        self.observer = Observer(peer)
 
     def add_listener(self, pc: RTCPeerConnection):
         self.listeners.add(Listen(pc))

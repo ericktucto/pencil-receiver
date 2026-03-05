@@ -52,32 +52,32 @@ async def offer(request):
 
     pc = RTCPeerConnection()
 
-    app.add_listener(pc)
+    app.add_peer(pc)
 
-    @pc.on("datachannel")
-    def on_datachannel(channel):
-        print("Data Channel opened", channel.label)
-        #app.add_listener(pc, channel)
-        #try:
-        #    d = devices_to_dict(devices())
-        #    channel.send(json.dumps({
-        #        'name': 'list-devices',
-        #        'data': d
-        #    }))
-        #except Exception as e:
-        #    print(e)
+    #@pc.on("datachannel")
+    #def on_datachannel(channel):
+    #    print("Data Channel opened", channel.label)
+    #    #app.add_listener(pc, channel)
+    #    #try:
+    #    #    d = devices_to_dict(devices())
+    #    #    channel.send(json.dumps({
+    #    #        'name': 'list-devices',
+    #    #        'data': d
+    #    #    }))
+    #    #except Exception as e:
+    #    #    print(e)
 
-        @channel.on("message")
-        def on_message(message):
-            event = json.loads(message)
-            if event['name'] == 'move-mouse':
-                move_mouse(event['data']['x'], event['data']['y'])
-            #print("Mensaje recibido:", message)
-            #channel.send("Echo: " + message)
+    #    @channel.on("message")
+    #    def on_message(message):
+    #        event = json.loads(message)
+    #        if event['name'] == 'move-mouse':
+    #            move_mouse(event['data']['x'], event['data']['y'])
+    #        #print("Mensaje recibido:", message)
+    #        #channel.send("Echo: " + message)
 
-        for c in controllers:
-            con = c(channel)
-            con.register()
+    #    for c in controllers:
+    #        con = c(channel)
+    #        con.register()
 
     await pc.setRemoteDescription(offer)
     answer = await pc.createAnswer()

@@ -87,6 +87,18 @@
             channel.send(data)
         }
 
+        function down() {
+            const data = JSON.stringify({
+                name: 'up',
+                data: {
+                    x: 30,
+                    y: -10
+                }
+            })
+            console.log("DEBUG: ", data)
+            channel.send(data)
+        }
+
     </script>
 
     <button onclick="connect()">Conectar</button>
@@ -95,6 +107,7 @@
         <select name="device" id="device-list" required></select>
         <button type="submit">Select</button>
     </form>
+    <button onclick="down()">UP</button>
     <div id="coords"></div>
 </body>
 </html>
