@@ -3,8 +3,7 @@ from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
 
 from app import App, Listen
-from mouse import Coords, devices, devices_to_dict, move_mouse
-from webrtc.controllers import controllers
+from mouse import Coords, devices
 
 app = App()
 
@@ -94,8 +93,8 @@ async def offer(request):
 async def on_shutdown(_):
     await app.destroy()
 
-async def on_startup(app):
-    pass
+async def on_startup(_):
+    await app.start()
 
 server = web.Application()
 server.router.add_post("/offer", offer)

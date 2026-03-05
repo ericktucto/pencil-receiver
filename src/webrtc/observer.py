@@ -6,6 +6,7 @@ from aiortc import RTCDataChannel, RTCPeerConnection
 from webrtc.controllers import controllers
 from webrtc.controllers.controller import CallableRoute, Controller
 from webrtc.messages.message import Message
+from webrtc.mouse import VirtualMouse
 
 
 class Observer():
@@ -13,9 +14,11 @@ class Observer():
     peer = None
     controllers: List[Controller] = []
     routes: Dict[str, CallableRoute] = {}
+    mouse: VirtualMouse
 
-    def __init__(self, peer: RTCPeerConnection):
+    def __init__(self, peer: RTCPeerConnection, mouse: VirtualMouse):
         self.peer = peer
+        self.mouse = mouse
         self.peer.on("datachannel", self.on_datachannel)
         self.peer.on("connectionstatechange", self.on_connectionstatechange)
 
@@ -23,7 +26,7 @@ class Observer():
         try:
             print("Data Channel opened", channel.label)
 
-            self.controllers = [c(channel) for c in controllers]
+            self.controllers = [c(channel, self.mouse) for c in controllers]
             self.routes = {}
 
             for controller in self.controllers:

@@ -9,13 +9,16 @@ class DrawController(Controller):
 
     @route("down")
     def down(self, message: DownMessage, _: RTCDataChannel):
-        print("Message from server: ", message)
+        self.mouse.down(message.x, message.y)
+        print("Message from server: ", message.name, message.data)
 
     @route("coords")
     def coords(self, message: CoordsMessage, _: RTCDataChannel):
-        print("Message from server: ", message)
+        self.mouse.move(message.x, message.y)
+        print("Message from server: ", message.name, message.data)
 
     @route("up")
     def up(self, message: Message, _: RTCDataChannel):
-        print("Message from server: ", message)
+        self.mouse.up()
+        print("Message from server: ", message.name, message.data)
 
