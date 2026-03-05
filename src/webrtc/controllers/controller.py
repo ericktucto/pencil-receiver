@@ -1,31 +1,36 @@
-from abc import ABC, abstractmethod
-from typing import List
-
+import inspect
+import json
+from typing import Callable, Dict
 from aiortc import RTCDataChannel
 
-from webrtc.message import Message
-from webrtc.controllers.route import Route
+from webrtc.messages.message import Message
 
-class Controller(ABC):
+CallableRoute = Callable[[Message, RTCDataChannel], None]
+
+class Controller:
     dataChannel: RTCDataChannel
-    def __init__(self, dataChannel: RTCDataChannel):
-        self.dataChannel = dataChannel
 
-    def register(self):
-        self.dataChannel.on("message", self.on_message)
+    def __init__(self, channel: RTCDataChannel):
+        self.dataChannel = channel
 
+    def routes(self) -> Dict[str, Callable]:
 
-    def on_message(self, message: str):
-        payload = Message(message)
-        found = None
-        for route in self.routes():
-            if route.name == payload.name:
-                found = route.callback
-                break
-        if found is not None:
-            found(payload)
+        routes = {}
 
+        for _, method in inspect.getmembers(self, inspect.ismethod):
 
-    @abstractmethod
-    def routes(self)-> List[Route]:
-        pass
+            route_name = getattr(method, "_route_name", None)
+            message_type = getattr(method, "_message_type", None)
+
+            if route_name:
+                if message_type:
+                    def _method(msg: Message, dataChannel: RTCDataChannel):
+                        data = json.dumps(msg._payload)
+                        if message_type:
+                            method(message_type(data), dataChannel)
+
+                    routes[route_name] = _method
+                    continue
+                routes[route_name] = method
+
+        return routes

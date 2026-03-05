@@ -1,8 +1,6 @@
-from webrtc.controllers.down_controller import DownController
-from webrtc.controllers.up_controller import UpController
+from webrtc.controllers.draw_controller import DrawController
 
 
 controllers = [
-    #DownController,
-    UpController
+    DrawController
 ]

@@ -1,10 +1,11 @@
+from abc import ABC
 import json
-from typing import Dict
 
 
-class Message():
+class Message(ABC):
     def __init__(self, payload: str):
         self._payload = json.loads(payload)
+        self._data = self._payload['data']
 
 
     @property
@@ -12,5 +13,6 @@ class Message():
         return self._payload['name']
 
     @property
-    def data(self) -> Dict:
+    def data(self):
         return self._payload['data']
+

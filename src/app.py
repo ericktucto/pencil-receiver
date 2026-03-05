@@ -1,8 +1,7 @@
 import asyncio
 from collections import namedtuple
-import json
 from typing import Callable, Set
-from aiortc import RTCDataChannel, RTCPeerConnection
+from aiortc import RTCPeerConnection
 from evdev import InputDevice, ecodes
 from mouse import Coords
 from webrtc.observer import Observer

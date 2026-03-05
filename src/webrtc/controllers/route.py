@@ -1,6 +1,6 @@
 from typing import Callable
 
-from webrtc.message import Message
+from webrtc.messages.message import Message
 
 
 class Route():
