@@ -52,7 +52,7 @@ async def offer(request):
 
     pc = RTCPeerConnection()
 
-    app.add_peer(pc)
+    await app.add_peer(pc)
 
     #@pc.on("datachannel")
     #def on_datachannel(channel):

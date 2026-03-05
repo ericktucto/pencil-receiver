@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import Dict, List
 from aiortc import RTCDataChannel, RTCPeerConnection
@@ -54,10 +55,14 @@ class Observer():
             except Exception as e:
                 print("handler error:", e)
 
-    async def on_connectionstatechange(self):
+    def on_connectionstatechange(self):
         if self.peer:
             print("Connection state is %s" % self.peer.connectionState)
-        if self.peer and self.peer.connectionState == 'closed':
+        if self.peer and self.peer.connectionState in ('closed', 'failed'):
+            asyncio.create_task(self.destroy())
+
+    async def destroy(self):
+        if self.peer:
             await self.peer.close()
             self.peer = None
 

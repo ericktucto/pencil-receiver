@@ -9,18 +9,23 @@ from webrtc.observer import Observer
 Listen = namedtuple("Listen", ["peer"])
 
 class App:
-    observer: Observer
+    observer: Observer | None = None
     listeners: Set[Listen] = set()
     task = None
     currentCoords = Coords(0, 0)
 
-    def add_peer(self, peer: RTCPeerConnection):
+    async def add_peer(self, peer: RTCPeerConnection):
+        if self.observer:
+            await self.observer.destroy()
         self.observer = Observer(peer)
 
     def add_listener(self, pc: RTCPeerConnection):
         self.listeners.add(Listen(pc))
 
     async def destroy(self):
+        if self.observer:
+            await self.observer.destroy()
+            self.observer = None
         coros = [l.peer.close() for l in self.listeners]
         await asyncio.gather(*coros)
         self.listeners.clear()
